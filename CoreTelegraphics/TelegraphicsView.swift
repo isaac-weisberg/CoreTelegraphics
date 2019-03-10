@@ -20,17 +20,48 @@ class TelegraphicsView: UIView {
         trashBag = TrashBag()
         
         viewModel.visibleValues
-            .run {[unowned self] newModel in
-                guard let maxValue = newModel.values.map( { $0.value } ).max(by: >) else {
-                    return
+            .map { dataset in
+                dataset.map { newModel -> ([CGPoint], CGColor) in
+                    guard let maxValue = newModel.values.map( { $0.value } ).max(by: <) else {
+                        return ([], newModel.color)
+                    }
+                    
+                    let horizontalCount = newModel.values.count
+                    let normalizedPoints = newModel.values
+                        .enumerated()
+                        .map { stuff in
+                            return CGPoint(
+                                x: CGFloat(stuff.offset) / CGFloat(horizontalCount),
+                                y: CGFloat(stuff.element.value) / CGFloat(maxValue))
+                    }
+                    return (normalizedPoints, newModel.color)
                 }
-                let sectors = 5
-                let step = CGFloat(maxValue) / CGFloat(sectors)
-                let sectorsRange: ClosedRange<Int> = 0...(sectors + 1)
-                let sectorValues: [CGFloat] = sectorsRange.map { CGFloat($0) * step }
-                
             }
+            .run(silo: telegraphicsLayer.lines)
             .disposed(by: trashBag)
+        
+        telegraphicsLayer.frame = bounds
+        
+        
+//        viewModel.visibleValues
+//            .run {[unowned self] newModel in
+//                guard let maxValue = newModel.values.map( { $0.value } ).max(by: >) else {
+//                    return
+//                }
+//                let sectors = 5
+//                let step = CGFloat(maxValue) / CGFloat(sectors)
+//                let sectorsRange: ClosedRange<Int> = 0...(sectors + 1)
+//                let sectorValues: [CGFloat] = sectorsRange.map { CGFloat($0) * step }
+//                
+//                let horizontalCount = newModel.values.count
+//                let normalizedPoints = newModel.values.enumerated()
+//                    .map { stuff in
+//                        return CGPoint(
+//                            x: CGFloat(stuff.offset) / CGFloat(horizontalCount),
+//                            y: CGFloat(stuff.element.value) / CGFloat(maxValue))
+//                    }
+//            }
+//            .disposed(by: trashBag)
     }
 }
 
@@ -39,9 +70,5 @@ private extension TelegraphicsView {
         telegraphicsLayer.frame = bounds
         telegraphicsLayer.setNeedsDisplay()
         layer.addSublayer(telegraphicsLayer)
-        
-        telegraphicsLayer.lines.fire(event: [
-            ([CGPoint(x: 0.27, y: 0.1), CGPoint(x: 0.26, y: 0.26), CGPoint(x: 0.72, y: 0.70), CGPoint(x: 0.26, y: 0.70)], UIColor.red.cgColor)
-        ])
     }
 }

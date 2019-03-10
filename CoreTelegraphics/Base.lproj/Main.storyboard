@@ -19,10 +19,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tuu-Iy-kUW" customClass="TelegraphicsView" customModule="CoreTelegraphics" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="20" width="375" height="375"/>
+                                <rect key="frame" x="0.0" y="20" width="375" height="250"/>
                                 <color key="backgroundColor" red="1" green="0.83921568629999999" blue="0.38431372549999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="tuu-Iy-kUW" secondAttribute="height" id="Ea6-WE-ARJ"/>
+                                    <constraint firstAttribute="width" secondItem="tuu-Iy-kUW" secondAttribute="height" multiplier="1.5" id="Ea6-WE-ARJ"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -34,6 +34,9 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="telegraphicsView" destination="tuu-Iy-kUW" id="D21-dj-Qod"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

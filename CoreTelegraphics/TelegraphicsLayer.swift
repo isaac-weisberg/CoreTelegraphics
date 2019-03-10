@@ -8,6 +8,12 @@ class TelegraphicsLayer: CALayer {
         setup()
     }
     
+    override init(layer: Any) {
+        super.init(layer: layer)
+        boundsContainer = .init(value: bounds)
+        setup()
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         boundsContainer = .init(value: bounds)
@@ -29,10 +35,10 @@ class TelegraphicsLayer: CALayer {
 
 private extension TelegraphicsLayer {
     func setup() {
-        lines
-            .withLatest(from: boundsContainer) { (lines: $0, bounds: $1) }
+        Conveyor
+            .combineLatest(lines, boundsContainer) { (lines: $0, bounds: $1) }
             .map { stuff in
-                stuff.lines.map { line -> CAShapeLayer in
+                (stuff.lines.map { line -> CAShapeLayer in
                     let points = line.0
                         .map { clamped -> CGPoint in
                             #if DEBUG
@@ -40,15 +46,12 @@ private extension TelegraphicsLayer {
                             #endif
                             return CGPoint(x: stuff.bounds.width * clamped.x, y: stuff.bounds.height * clamped.y)
                     }
-                    return shapeLayerWithLine(at: points, strokeColor: line.1)
-                }
+                    return shapeLayerWithLine(at: points, frame: stuff.bounds, strokeColor: line.1)
+                }, stuff.bounds)
             }
-            .run {[unowned self] layers in
-                layers.forEach {
-                    $0.frame = self.bounds
-                    $0.setNeedsDisplay()
-                }
-                self.sublayers = layers
+            .run {[unowned self] stuff in
+                self.sublayers = stuff.0
+                self.setNeedsDisplay()
             }
             .disposed(by: trashBag)
         
@@ -56,8 +59,9 @@ private extension TelegraphicsLayer {
 
 }
 
-private func shapeLayerWithLine(at points: [CGPoint], strokeColor: CGColor) -> CAShapeLayer {
+private func shapeLayerWithLine(at points: [CGPoint], frame: CGRect, strokeColor: CGColor) -> CAShapeLayer {
     let shapeLayer = CAShapeLayer()
+    shapeLayer.frame = frame
     shapeLayer.fillColor = UIColor.clear.cgColor
     shapeLayer.strokeColor = strokeColor
     let path = CGMutablePath()
@@ -68,7 +72,7 @@ private func shapeLayerWithLine(at points: [CGPoint], strokeColor: CGColor) -> C
         pointsCopy
             .forEach {
                 path.addLine(to: $0)
-        }
+            }
     }
     
     shapeLayer.path = path

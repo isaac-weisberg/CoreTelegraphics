@@ -1,15 +1,15 @@
 import HalfFive
 
 protocol TelegraphicsViewModel {
-    var visibleValues: Container<TelegraphicsModel, SchedulingMain> { get }
+    var visibleValues: Container<[TelegraphicsModel], SchedulingMain> { get }
 }
 
 class TelegraphicsViewModelImpl {
-    init(model: TelegraphicsModel) {
-        visibleValues = .init(value: model)
+    init(models: [TelegraphicsModel]) {
+        visibleValues = .init(value: models)
     }
     
-    let visibleValues: Container<TelegraphicsModel, SchedulingMain>
+    let visibleValues: Container<[TelegraphicsModel], SchedulingMain>
 }
 
 extension TelegraphicsViewModelImpl: TelegraphicsViewModel {
